@@ -15,4 +15,4 @@ The syntax is identical to `scp` without any flags:
 
 `mvkey publickey [user@]host:path/to/where/publickeys/go`
 
-You can copy mvkey to /bin or or as a function to your .<shell>rc (.zshrc /.bashrc).
+You can copy mvkey to `/bin/` or or as a function to your `.zshrc` or `.bashrc`.
