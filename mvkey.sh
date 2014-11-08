@@ -6,7 +6,6 @@ decider=false
 if [ "${1##*.}" != "pub" ]; then
  read -p "$1 doesn't have a .pub ending and may not be a public key. Do you want to continue? [Y/n] " yn
  case $yn in
-   [Yy]* ) decider=true;;
    [Nn]* ) ;;
        * ) decider=true;;
  esac
@@ -17,9 +16,8 @@ if [ scp $1 $2 ] && [ $decider == true ]; then
   rm $1
   read -p "Do you want to directly append the key to the remote authorized_keys? [y/N]" yn
   case $yn in
-      [Yy]* ) ssh $(echo $2 | cut -d ':' -f1) -t $(echo 'cd ')$(echo $(echo $2 | cut -d ':' -f2))$(echo '; cat ')$(echo $1)$(echo '>> authorized_keys; rm ')$(echo $1);;
-      [Nn]* ) echo $(echo 'connecting to ')$(echo $2)
-              ssh $(echo $2 | cut -d ':' -f1) -t $(echo 'cd ')$(echo $(echo $2 | cut -d ':' -f2))$(echo '; $SHELL -l');;
+      [Yy]* ) ssh $(echo $2 | cut -d ':' -f1) -t $(echo 'cd ')$(echo $(echo $2 | cut -d ':' -f2))$(echo '; cat ')$(echo $1)$(echo '>> authorized_keys; rm ')$(echo $1)
+              echo "appended $1 to remote authorized_keys";;
           * ) echo $(echo 'connecting to ')$(echo $2)
               ssh $(echo $2 | cut -d ':' -f1) -t $(echo 'cd ')$(echo $(echo $2 | cut -d ':' -f2))$(echo '; $SHELL -l');;
   esac
