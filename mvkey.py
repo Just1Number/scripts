@@ -20,14 +20,15 @@ else:
   decider = True
 
 if decider and not call(["scp", sys.argv[1], sys.argv[2]]):
-  call(["rm", sys.argv[1]])
+  #call(["rm", sys.argv[1]])
 
   yn = raw_input("Do you want to directly append the key to the remote authorized_keys? [y/N] ")
   if len(yn) == 0 or (yn[0] != "y" and yn[0] != "Y"):
     print("connecting to " + sys.argv[1])
-    command = "\"cd " + sys.argv[2].split(":")[1] + "; $SHELL -l\""
-    call(["ssh", sys.argv[2].split(":")[0], "-t", command])
+    command = "ssh " + sys.argv[2].split(":")[0] + " -t " + "\'cd " + sys.argv[2].split(":")[1] + "; $SHELL -l\'"
+    print  command
+    call([command], shell = True)
   else:
-    command = "'cd " + sys.argv[2].split(":")[1] + "; cat " + sys.argv[1] + ">> authorized_keys; rm " + sys.argv[1] + "'"
-    if not call(["ssh", sys.argv[2].split(":")[0], "-t", command]):
+    command = "ssh " + sys.argv[2].split(":")[0] + " -t " + "\'cd " + sys.argv[2].split(":")[1] + "; cat " + sys.argv[1] + ">> authorized_keys; rm " + sys.argv[1] + "\'"
+    if not call([command], shell = True):
       print("appended " + sys.argv[1] + " to remote authorized_keys")
