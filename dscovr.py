@@ -2,41 +2,33 @@
 import json
 from datetime import datetime
 from os import rename
-from time import strftime, sleep
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
-download_directory="/home/johannes/.cache/dscovr/"
-apiurl="https://epic.gsfc.nasa.gov/api/natural"
-contents = urlopen(apiurl).read()
+from random import randint
+
+# Constants
+download_directory = "/home/johannes/.cache/dscovr/"
+api_url = "https://epic.gsfc.nasa.gov/api/natural"
+image_source = "https://epic.gsfc.nasa.gov/archive/natural/"
+
+# Parsing api 
+contents = urlopen(api_url).read()
 data = json.loads(contents.decode('utf-8'))
 opener = URLopener()
-dates = []
-for image in data:
-	dates.append(image['date'])
-imgnum = dates.index(max(dates))
-image_name = data[imgnum]['image'] + '.png'
-imgpath = download_directory + image_name
-imgurl1="https://epic.gsfc.nasa.gov/archive/natural/" + strftime("%Y/%m/") + str(datetime.now().day - 2) + "/png/" 
-imgurl2="https://epic.gsfc.nasa.gov/archive/natural/" + strftime("%Y/%m/") + str(datetime.now().day - 1) + "/png/"
-imgurl3="https://epic.gsfc.nasa.gov/archive/natural/" + strftime("%Y/%m/") + str(datetime.now().day - 0) + "/png/" 
+
+# choosing image by index. picking a picture taken close to the current daytime
+index = int(datetime.now().hour/ 24.0 * len(data)) # dates.index(max(dates))
+image_name = data[index]['image'] + '.png' # epic_1b_20180630224431.png
+image_id = data[index]['identifier'] # 20180630224431
+image_path = download_directory + image_name
+image_url = image_source + image_id[:4] + "/" + image_id[4:6] + "/" + image_id[6:8] + "/png/"
+# https://epic.gsfc.nasa.gov/archive/natural/2018/06/30/png/epic_1b_20180630224431.png
 check = 0
 try:
-	opener.retrieve(imgurl2 + image_name, imgpath)
+	opener.retrieve(image_url + image_name, image_path)
 	check = 1
 except HTTPError:
-	print("Nicht Gestern")
-if not check:
-	try:
-		opener.retrieve(imgurl1 + image_name, imgpath)
-		check = 1
-	except HTTPError:
-		print("Nicht Vorgestern")
-if not check:
-	try:
-		opener.retrieve(imgurl3 + image_name, imgpath)
-		check = 1
-	except HTTPError:
-		print("Nicht Heute")
+	print(image_url + image_name)
 if check:
-	rename(imgpath, download_directory + 'latest.png')
+	rename(image_path, download_directory + 'latest_epic.png')
 	print(image_name)
