@@ -1,22 +1,34 @@
 #!/usr/bin/python3
+import argparse
 import json
 from datetime import datetime
-from os import rename
+from os import rename, getcwd, path
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
-from random import randint
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
+args = parser.parse_args()
+
+if path.isdir(args.output_dir):
+  if args.output_dir[len(args.output_dir)-1] == "/":
+    DOWNLOAD_DIRECTORY = args.output_dir
+  else:
+    DOWNLOAD_DIRECTORY = args.output_dir + "/"
+else:
+  print("Output directory invalid. Check if it exsits")
+  exit()
 
 # Constants
-download_directory = "/home/johannes/.cache/dscovr/"
-api_url = "https://epic.gsfc.nasa.gov/api/natural"
-image_source = "https://epic.gsfc.nasa.gov/archive/natural/"
+API_URL = "https://epic.gsfc.nasa.gov/api/natural"
+IMAGE_SOURCE = "https://epic.gsfc.nasa.gov/archive/natural/"
 
 # Parsing api 
 contents = bytes(0)
 try:
-    contents = urlopen(api_url).read()
+    contents = urlopen(API_URL).read()
 except:
-    print("Problem with the api url " + api_url)
+    print("Problem with the api url " + API_URL)
     print("Check your internet connection")
     exit()
 data = json.loads(contents.decode('utf-8'))
@@ -49,8 +61,8 @@ for ts in image_times:
 index = diffs.index(min(diffs))
 image_name = data[index]['image'] + '.png' # epic_1b_20180630224431.png
 image_id = data[index]['identifier'] # 20180630224431
-image_path = download_directory + image_name
-image_url = image_source + image_id[:4] + "/" + image_id[4:6] + "/" + image_id[6:8] + "/png/"
+image_path = DOWNLOAD_DIRECTORY + image_name
+image_url = IMAGE_SOURCE + image_id[:4] + "/" + image_id[4:6] + "/" + image_id[6:8] + "/png/"
 # https://epic.gsfc.nasa.gov/archive/natural/2018/06/30/png/epic_1b_20180630224431.png
 check = 0
 try:
@@ -59,5 +71,5 @@ try:
 except HTTPError:
 	print(image_url + image_name)
 if check:
-	rename(image_path, download_directory + 'latest_epic.png')
+	rename(image_path, DOWNLOAD_DIRECTORY + 'latest_epic.png')
 	print(image_name)
