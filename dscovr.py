@@ -76,10 +76,6 @@ if path.exists(metadata):
   if old_image == image_name:
     print(image_name + " is already on local maschine. Skipping download.")
     exit()
-# write current image_name to the metadata file
-wf = open(metadata, "w")
-wf.write(image_name)
-wf.close()
 
 check = 0
 try:
@@ -89,5 +85,10 @@ except HTTPError:
   print("Download failed")
   print(image_url + image_name)
 if check:
+  # write current image_name to the metadata file
+  wf = open(metadata, "w")
+  wf.write(image_name)
+  wf.close()
+
   rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
   print(image_name + " downloaded")
