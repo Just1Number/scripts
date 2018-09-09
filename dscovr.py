@@ -28,7 +28,7 @@ contents = bytes(0)
 try:
   contents = urlopen(API_URL).read()
 except:
-  print("Problem with the api url " + API_URL)
+  print("Cannot connect to API at " + API_URL)
   print("Check your internet connection")
   exit()
 data = json.loads(contents.decode('utf-8'))
@@ -77,18 +77,17 @@ if path.exists(metadata):
     print(image_name + " is already on local maschine. Skipping download.")
     exit()
 
-check = 0
 try:
   opener.retrieve(image_url + image_name, image_path)
-  check = 1
-except HTTPError:
+except:
   print("Download failed")
   print(image_url + image_name)
-if check:
-  # write current image_name to the metadata file
-  wf = open(metadata, "w")
-  wf.write(image_name)
-  wf.close()
+  exit()
 
-  rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
-  print(image_name + " downloaded")
+# write current image_name to the metadata file
+wf = open(metadata, "w")
+wf.write(image_name)
+wf.close()
+
+rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
+print(image_name + " downloaded")
