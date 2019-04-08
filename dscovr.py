@@ -5,6 +5,7 @@ from datetime import datetime
 from os import rename, getcwd, path
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
+from subprocess import run
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
@@ -88,6 +89,9 @@ except:
 wf = open(metadata, "w")
 wf.write(image_name)
 wf.close()
+
+# crop image
+run(["convert", image_path, "-crop", "2048x1748+0+150", image_path])
 
 rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
 print(image_name + " downloaded")
