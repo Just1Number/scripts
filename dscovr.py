@@ -6,11 +6,12 @@ from datetime import timedelta
 from os import rename, getcwd, path
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
-from subprocess import run
+from subprocess import run, SubprocessError
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
 parser.add_argument("-n", dest = "pics_per_day", type = int, help = "use a day with at least PICS_PER_DAY pictures")
+parser.add_argument("-c", dest = "geometry", help = "crop image to geometry", default = "")
 args = parser.parse_args()
 
 if path.isdir(args.output_dir):
@@ -103,7 +104,12 @@ wf.write(image_name)
 wf.close()
 
 # crop image
-run(["convert", image_path, "-crop", "2048x1748+0+150", image_path])
+if args.geometry != "":
+  try:
+    run(["convert", image_path, "-crop", args.geometry, image_path])
+  except Exception as e:
+    print("Cropping failed, check if you have imagemagic installed")
+    print(e)
 
 rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
 print(image_name + " downloaded")
