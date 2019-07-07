@@ -2,6 +2,7 @@
 import argparse
 import json
 from datetime import datetime
+from datetime import timedelta
 from os import rename, getcwd, path
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
@@ -9,13 +10,11 @@ from subprocess import run
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
+parser.add_argument("-n", dest = "pics_per_day", type = int, help = "use a day with at least PICS_PER_DAY pictures")
 args = parser.parse_args()
 
 if path.isdir(args.output_dir):
-  if args.output_dir[len(args.output_dir)-1] == "/":
     DOWNLOAD_DIRECTORY = args.output_dir
-  else:
-    DOWNLOAD_DIRECTORY = args.output_dir + "/"
 else:
   print("Output directory invalid. Check if it exists")
   exit()
@@ -33,8 +32,21 @@ except:
   print("Check your internet connection")
   exit()
 data = json.loads(contents.decode('utf-8'))
-opener = URLopener()
 
+# If there are to few pictures per day use a previous day, that has more
+d = datetime.strptime(data[1]['date'], "%Y-%m-%d %H:%M:%S").date()
+while len(data) < args.pics_per_day:
+  d -= timedelta(1)
+  API_URL += "/date/" + d.strftime("%Y-%m-%d")
+  try:
+    contents = urlopen(API_URL).read()
+  except:
+    print("Cannot connect to API at " + API_URL)
+    print("Check your internet connection")
+    exit()
+  data = json.loads(contents.decode('utf-8'))
+
+opener = URLopener()
 image_times = []
 tsnow = datetime.utcnow().timestamp()
 
