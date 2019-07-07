@@ -75,7 +75,7 @@ for ts in image_times:
 index = diffs.index(min(diffs))
 image_name = data[index]['image'] + '.png' # epic_1b_20180630224431.png
 image_id = data[index]['identifier'] # 20180630224431
-image_path = DOWNLOAD_DIRECTORY + image_name
+image_path = path.join(DOWNLOAD_DIRECTORY, image_name)
 image_url = IMAGE_SOURCE + image_id[:4] + "/" + image_id[4:6] + "/" + image_id[6:8] + "/png/"
 # https://epic.gsfc.nasa.gov/archive/natural/2018/06/30/png/epic_1b_20180630224431.png
 
@@ -111,5 +111,5 @@ if args.geometry != "":
     print("Cropping failed, check if you have imagemagic installed")
     print(e)
 
-rename(image_path, DOWNLOAD_DIRECTORY + 'epic.png')
+rename(image_path, path.join(DOWNLOAD_DIRECTORY, 'epic.png'))
 print(image_name + " downloaded")
