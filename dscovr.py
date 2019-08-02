@@ -80,7 +80,7 @@ image_url = IMAGE_SOURCE + image_id[:4] + "/" + image_id[4:6] + "/" + image_id[6
 # https://epic.gsfc.nasa.gov/archive/natural/2018/06/30/png/epic_1b_20180630224431.png
 
 # check if metadata file exists
-metadata = DOWNLOAD_DIRECTORY + "image_info.epic"
+metadata = path.join(DOWNLOAD_DIRECTORY, "image_info.epic")
 if path.exists(metadata):
   # read filename of last image 
   # and skip download if it is the same as the current one
