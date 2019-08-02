@@ -10,7 +10,7 @@ from subprocess import run, SubprocessError
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
-parser.add_argument("-n", dest = "pics_per_day", type = int, help = "use a day with at least PICS_PER_DAY pictures")
+parser.add_argument("-n", dest = "pics_per_day", type = int, help = "use a day with at least PICS_PER_DAY pictures", default = 1)
 parser.add_argument("-c", dest = "geometry", help = "crop image to geometry", default = "")
 args = parser.parse_args()
 
