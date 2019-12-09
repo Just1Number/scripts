@@ -49,7 +49,8 @@ while len(data) < args.pics_per_day:
 
 opener = URLopener()
 image_times = []
-tsnow = datetime.utcnow().timestamp()
+# EPIC is broken, so old pictures are used
+tsnow = datetime.utcnow().replace(year=2018).timestamp()
 
 for meta in data:
   # convert json date into python time object, ignoring the date
