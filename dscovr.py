@@ -21,15 +21,17 @@ else:
   exit()
 
 # Constants
-API_URL = "https://epic.gsfc.nasa.gov/api/natural"
+API_URL_BASE = "https://epic.gsfc.nasa.gov/api/natural/date/"
 IMAGE_SOURCE = "https://epic.gsfc.nasa.gov/archive/natural/"
 
+dtnow = datetime.utcnow().replace(year=2018)
+api_url = API_URL_BASE + dtnow.strftime("%Y-%m-%d")
 # Parsing api 
 contents = bytes(0)
 try:
-  contents = urlopen(API_URL).read()
+  contents = urlopen(api_url).read()
 except:
-  print("Cannot connect to API at " + API_URL)
+  print("Cannot connect to API at " + api_url)
   print("Check your internet connection")
   exit()
 data = json.loads(contents.decode('utf-8'))
@@ -38,11 +40,11 @@ data = json.loads(contents.decode('utf-8'))
 d = datetime.strptime(data[1]['date'], "%Y-%m-%d %H:%M:%S").date()
 while len(data) < args.pics_per_day:
   d -= timedelta(1)
-  API_URL += "/date/" + d.strftime("%Y-%m-%d")
+  api_url = API_URL_BASE + d.strftime("%Y-%m-%d")
   try:
-    contents = urlopen(API_URL).read()
+    contents = urlopen(api_url).read()
   except:
-    print("Cannot connect to API at " + API_URL)
+    print("Cannot connect to API at " + api_url)
     print("Check your internet connection")
     exit()
   data = json.loads(contents.decode('utf-8'))
@@ -50,7 +52,7 @@ while len(data) < args.pics_per_day:
 opener = URLopener()
 image_times = []
 # EPIC is broken, so old pictures are used
-tsnow = datetime.utcnow().replace(year=2018).timestamp()
+tsnow = dtnow.timestamp()
 
 for meta in data:
   # convert json date into python time object, ignoring the date
