@@ -3,13 +3,14 @@ import argparse
 import json
 from datetime import datetime
 from datetime import timedelta
-from os import rename, getcwd, path
+from os import rename, remove, getcwd, path
+from shutil import copyfile
 from urllib.request import urlopen, URLopener
 from urllib.error import HTTPError
 from subprocess import run, SubprocessError
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd())
+parser.add_argument("-o", dest = "output_dir", help = "set output directory", default = getcwd()) # location of the script: default = path.dirname(path.realpath(__file__))
 parser.add_argument("-n", dest = "pics_per_day", type = int, help = "use a day with at least PICS_PER_DAY pictures", default = 1)
 parser.add_argument("-c", dest = "geometry", help = "crop image to geometry", default = "")
 args = parser.parse_args()
@@ -17,7 +18,7 @@ args = parser.parse_args()
 if path.isdir(args.output_dir):
     DOWNLOAD_DIRECTORY = args.output_dir
 else:
-  print("Output directory invalid. Check if it exists")
+  print("Output directory '" + args.output_dir + "' invalid. Check if it exists")
   exit(1)
 
 # Constants
@@ -41,8 +42,14 @@ except Exception as e:
 data = json.loads(contents.decode('utf-8'))
 
 # If there are to few images per day use a previous day, that has more
+# Cancel search after 10 days
 d = dtnow.date()
+i = 0
 while len(data) < args.pics_per_day:
+  if i == 10:
+      print("Couldn't find a day with at least " + args.pics_per_day + " pictures.")
+      exit(1)
+  i += 1
   # go back one day
   d -= timedelta(1)
   api_url = API_URL_BASE + d.strftime("%Y-%m-%d")
@@ -89,7 +96,7 @@ if early or late:
     additional_data = json.loads(contents.decode('utf-8'))
   except Exception as e:
     print("Cannot connect to API at " + api_url)
-    print(e)  
+    print(e)
 
   if len(additional_data) > 0:
     # add one image to data
@@ -157,5 +164,17 @@ if args.geometry != "":
     print("Cropping failed, check if you have imagemagic installed")
     print(e)
 
-rename(image_path, path.join(DOWNLOAD_DIRECTORY, 'epic.png'))
+# move downloaded image to final path
+final_path = path.join(DOWNLOAD_DIRECTORY, 'epic.png')
+if path.exists(final_path):
+  remove(final_path) # needed for windows only
+rename(image_path, final_path)
+
+# Uncomment this section if you need a copy of the image for a diashow under windows
+#final_path_copy = path.join(DOWNLOAD_DIRECTORY, 'epic_copy.png')
+#if path.exists(final_path_copy):
+#  remove(final_path_copy) # Windows only
+#copyfile(final_path, final_path_copy)
+
 print(image_name + " downloaded")
+
